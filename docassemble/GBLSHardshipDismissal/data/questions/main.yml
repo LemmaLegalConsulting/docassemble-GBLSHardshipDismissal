@@ -1,0 +1,52 @@
+---
+include:
+  - shared.yml
+---
+code: |
+  github_repo_name =  'docassemble-GBLSHardshipDismissal'
+---
+metadata:
+  title: |
+    GBLS Hardship Dismissal
+  short title: |
+    Hardship Dismissal
+  tags:
+    - HO-02-00-00-00
+  authors:
+    - Rami Lorca
+---
+code: |
+  interview_short_title = "GBLS Hardship Dismissal"
+---
+features:
+  labels above fields: True
+---
+code: |
+  AL_DEFAULT_STATE = "MA"
+  AL_DEFAULT_COUNTRY = "US"
+---
+###################### Main Order Start ######################
+---
+mandatory: True
+code: |
+  nav.set_section('main_dashboard')
+  
+  cases.gather()
+
+  for case in cases:
+  
+    case.clients.gather()
+
+  main_dashboard
+---
+###################### Nav Start ######################
+---
+code: |
+  enable_al_nav_sections = True
+---
+reconsider: True
+variable name: al_nav_sections
+data from code:
+  - main_dashboard: |
+      "Main Dashboard"
+---

@@ -1,0 +1,116 @@
+---
+include:
+  - docassemble.AssemblyLine:assembly_line.yml
+  - docassemble.ALAnyState:any_state.yml
+  - main.yml
+  - dashboard.yml
+---
+objects:
+  - cases[i].clients: ALPeopleList.using(there_are_any=True, complete_attribute='complete')
+  - cases: DAList.using(there_are_any=True, object_type=DAObject, complete_attribute = 'complete')
+---
+modules:
+  - docassemble.demo.accordion
+---
+###################### Object/Code Blocks Start ######################
+---
+code: |
+  cases[i].clients[j].name.first
+  cases[i].clients[j].name.last
+  cases[i].clients[j].client_id
+  cases[i].clients[j].complete = True
+---
+code: |
+  cases[i].case_number
+  cases[i].complete = True
+---
+code: |
+  cases[i].clients.there_is_another = False
+---
+###################### Questions Start ######################
+---
+id: client info
+sets:
+  - cases[i].clients[j].name.first
+  - cases[i].clients[j].name.last
+  - cases[i].clients[j].client_id
+question: |
+  Client Info 
+fields:
+  - What is this person's client ID?: cases[i].clients[j].client_id
+  - code: |
+      cases[i].clients[j].name_fields()
+  - code: |
+      cases[i].clients[j].address_fields(country_code=AL_DEFAULT_COUNTRY, default_state=AL_DEFAULT_STATE)
+  - code: |
+      cases[i].clients[j].pronoun_fields()
+  - Is this client retired?: cases[i].clients[j].is_retired
+    datatype: yesnoradio
+  - Is this client elderly?: cases[i].clients[j].is_elderly
+    datatype: yesnoradio
+  - What are this client's income sources?: cases[i].clients[j].income_sources
+    datatype: checkboxes
+    choices:
+      - Pension: pension 
+      - Social Security Retirement: ssr 
+      - Social Security Income: ssi 
+      - Social Security Disability Income: ssdi
+      - SNAP: snap
+  - What is this client's total income amount?: cases[i].clients[j].income_amount
+    datatype: currency
+    min: 0
+  - Select all hardship conditions that apply to this client: cases[i].clients[j].hardship_conditions
+    datatype: checkboxes
+    choices:
+      - Disabled: disabled 
+      - Lives in subsidized housing: subsidized_housing
+      - No property: no_property
+---
+id: case info
+sets:
+  - cases[i].case_number
+question: |
+  Case Details
+fields:
+  - Case number: cases[i].case_number
+  - Case name: cases[i].case_name
+    required: False
+  - Court name: cases[i].court_name
+    required: False
+  - Has there been a continuance?: cases[i].has_continuance
+    datatype: yesnoradio
+  - Continuance date: cases[i].continuance_date
+    datatype: date
+    required: False
+    show if: 
+      variable: cases[i].has_continuance
+      is: True
+  - Reason for continuance: cases[i].continuance_reason
+    datatype: area
+    required: False
+    show if: 
+      variable: cases[i].has_continuance
+      is: True 
+  - Has a court date been set?: cases[i].has_court_date
+    datatype: yesnoradio
+  - Court date: cases[i].court_date 
+    datatype: date
+    required: False
+    show if:
+      variable: cases[i].has_court_date
+      is: True
+---
+id: clients there_is_another
+question: |
+  Add another client
+fields:
+  - Do you want to add another client?: cases[i].clients.there_is_another
+    datatype: yesnoradio
+---
+id: cases there_is_another
+question: |
+  Add another case
+fields:
+  - Do you want to add another case?: cases.there_is_another
+    datatype: yesnoradio
+---

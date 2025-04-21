@@ -1,0 +1,22 @@
+---
+include:
+  - shared.yml
+---
+event: main_dashboard
+question: |
+  Main Dashboard
+subquestion: |
+  ${ cases.table }
+  ${ cases.add_action() }
+---
+table: cases.table
+rows: cases
+columns: 
+  - Case Number: |
+      row_item.case_number
+  - Client: |
+      row_item.clients[0].name
+edit:
+  - case_number
+  - clients[0].name.first
+---
