@@ -29,13 +29,14 @@ code: |
 ---
 mandatory: True
 code: |
+  load_active_sessions
+
   nav.set_section('main_dashboard')
   
-  cases.gather()
+  clients.gather()
 
-  for case in cases:
-  
-    case.clients.gather()
+  for client in clients:
+    client.cases.gather()
 
   main_dashboard
 ---

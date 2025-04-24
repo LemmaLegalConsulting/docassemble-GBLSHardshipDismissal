@@ -6,17 +6,21 @@ event: main_dashboard
 question: |
   Main Dashboard
 subquestion: |
-  ${ cases.table }
-  ${ cases.add_action() }
+  % if len(clients.complete_elements()) > 0:
+  % for client in clients:
+  ${ client.cases.table }
+  % endfor
+  % else:
+  You have not added any cases yet.
+  % endif
 ---
-table: cases.table
-rows: cases
-columns: 
+table: clients[i].cases.table
+rows: clients[i].cases
+columns:
+  - Case Number: |
+      row_item.client_full_name
   - Case Number: |
       row_item.case_number
-  - Client: |
-      row_item.clients[0].name
 edit:
   - case_number
-  - clients[0].name.first
 ---
