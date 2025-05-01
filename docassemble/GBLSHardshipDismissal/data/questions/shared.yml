@@ -27,19 +27,21 @@ code: |
 ---
 depends on: active_sessions
 code: |
-  temp_session = get_session_variables(active_sessions[0]["filename"], active_sessions[0]["key"], secret=None, simplify=False)
+  for current_session in active_sessions:
+    temp_session = get_session_variables(current_session["filename"], current_session["key"], secret=None, simplify=False)
 
-  case = cases.appendObject()
-  case.name.text = ""
-  case.case_number = temp_session["legalserver_case"].case_number
-  case.client = ALIndividual()
-  case.client.name.first = temp_session["client"].name.first
-  case.client.name.last = temp_session["client"].name.last
-  case.court = "Chelsea"
-  case.court_date = "7/1/2025"
-  case.type = "SSI"
-  case.firm = "Debt Company"
-  case.emailed = 1
+    case = cases.appendObject()
+    case.name.text = ""
+    case.case_number = temp_session["legalserver_case"].case_number
+    case.client = ALIndividual()
+    case.client.name.first = temp_session["client"].name.first
+    case.client.name.last = temp_session["client"].name.last
+    case.court = "Chelsea"
+    case.court_date = "7/1/2025"
+    case.type = "SSI"
+    case.firm = "Debt Company"
+    case.emailed = 1
+
   cases.there_is_another = False
 
   load_existing_client_data = True

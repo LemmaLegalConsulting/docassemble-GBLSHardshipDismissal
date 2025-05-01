@@ -7,7 +7,7 @@ question: |
   Main Dashboard
 subquestion: |
   % if cases.number_gathered() > 0:
-  ${ cases.table }
+  ${ cases.table.show(editable=False) }
   % else:
   You have not added any cases yet.
   % endif
@@ -16,9 +16,17 @@ table: cases.table
 rows: cases
 columns:
   - Case Number: |
-      row_item.client.name
-  - Case Number: |
       row_item.case_number
-edit:
-  - case_number
+  - Name: |
+      row_item.client.name
+  - Court: |
+      row_item.court
+  - Court Date: |
+      row_item.court_date
+  - Type: |
+      row_item.type
+  - Firm: |
+      row_item.firm
+  - Emails Sent: |
+      row_item.emailed
 ---
