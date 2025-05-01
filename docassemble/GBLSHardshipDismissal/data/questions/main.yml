@@ -31,12 +31,8 @@ mandatory: True
 code: |
   load_active_sessions
 
-  nav.set_section('main_dashboard')
-  
-  clients.gather()
-
-  for client in clients:
-    client.cases.gather()
+  if active_sessions:
+    load_existing_client_data
 
   main_dashboard
 ---

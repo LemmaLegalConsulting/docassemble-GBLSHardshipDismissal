@@ -6,8 +6,8 @@ include:
   - docassemble.AssemblyLine:al_package.yml
 ---
 objects:
-  - clients: ALPeopleList.using(there_are_any=True, complete_attribute='complete')
-  - clients[i].cases: DAList.using(there_are_any=True, object_type=DAObject, complete_attribute = 'complete')
+  - cases: DAList.using(there_are_any=True, object_type=Thing)
+  - cases[i].client: ALIndividual
 ---
 modules:
   - docassemble.demo.accordion
@@ -25,58 +25,24 @@ code: |
 
   load_active_sessions = True
 ---
-# code: |
-#   load_interview_answers(
-#       old_interview_filename=recent_sessions[recent_interview]["filename"], 
-#       old_session_id=recent_sessions[recent_interview]["key"]
-#   )
-#   load_existing_client_data = True
+depends on: active_sessions
+code: |
+  temp_session = get_session_variables(active_sessions[0]["filename"], active_sessions[0]["key"], secret=None, simplify=False)
+
+  case = cases.appendObject()
+  case.name.text = ""
+  case.case_number = temp_session["legalserver_case"].case_number
+  case.client = ALIndividual()
+  case.client.name.first = temp_session["client"].name.first
+  case.client.name.last = temp_session["client"].name.last
+  case.court = "Chelsea"
+  case.court_date = "7/1/2025"
+  case.type = "SSI"
+  case.firm = "Debt Company"
+  case.emailed = 1
+  cases.there_is_another = False
+
+  load_existing_client_data = True
 ---
 ###################### Object/Code Blocks Start ######################
----
-code: |
-  clients[i].name.first
-  clients[i].complete = True
----
-code: |
-  clients[i].cases[j].case_number
-  clients[i].cases[j].client_full_name
-  clients[i].cases[j].complete = True
----
-code: | 
-  clients[i].cases[j].client_full_name = clients[i].name_full()
----
-###################### Questions Start ######################
----
-id: client info
-sets:
-  - clients[i].name.first
-question: |
-  Client Info 
-fields:
-  - What is the client ID?: clients[i].client_id
-  - code: |
-      clients[i].name_fields()
----
-id: case info
-sets:
-  - clients[i].cases[j].case_number
-question: |
-  Add case for ${ clients[i] }
-fields:
-  - What is the case number?: clients[i].cases[j].case_number
----
-id: clients there_is_another
-question: |
-  Add another client
-fields:
-  - Do you want to add another client?: clients.there_is_another
-    datatype: yesnoradio
----
-id: cases there_is_another
-question: |
-  Add another case
-fields:
-  - Do you want to add another case?: clients[i].cases.there_is_another
-    datatype: yesnoradio
 ---
