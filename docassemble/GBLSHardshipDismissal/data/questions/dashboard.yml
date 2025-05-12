@@ -1,32 +1,46 @@
 ---
+metadata:
+  title: GBLS - SSI Hardship Scheduling Dashboard
+  short title: GBLS Dashboard
+  description: |
+    SSI Hardship scheduling system dashboard
+  temporary session: True
+  required privileges:
+    - admin
+    - developer
+---
 include:
-  - shared.yml
+  - docassemble.AssemblyLine:assembly_line.yml
 ---
-event: main_dashboard
+modules:
+  - .dashboard
+---
+features: 
+  css: dashboard.css
+---
+code: |
+  AL_ORGANIZATION_TITLE = 'GBLS'
+---
+mandatory: True
+id: SSI Dashboard
+event: dashboard
 question: |
-  Main Dashboard
+  Active Cases
 subquestion: |
-  % if cases.number_gathered() > 0:
-  ${ cases.table.show(editable=False) }
-  % else:
-  You have not added any cases yet.
-  % endif
+
+  Case Number | Name  | Court | Date | Type | Firm | Emails Sent | Edit | Delete
+  ----- | ------ | ------ | ------ | ------ | ------ | ------ | ------ | ------
+  % for item in get_saved_interview_list(filename="docassemble.playground128SSIHardship:main.yml",user_id="all", exclude_newly_started_sessions=False):
+    ${ item.get("data").get("case_number") } | ${ item.get("data").get("name") } | ${ item.get("data").get("court") } | ${ item.get("data").get("court_date") } | ${ item.get("data").get("type") } | ${ item.get("data").get("firm") } | ${ item.get("data").get("emailed") } | <a href="${ url_action("switch_session", filename=item.get("filename"), session=item.get("key")) }"><button class="btn btn-success"><i class="fa fa-pencil-alt" aria-hidden="true"></i></button></a> | <a href="${ url_action("interview_list_delete_session", filename=item.get("filename"), session=item.get("key") ) }"><button class="btn btn-danger"><i class="far fa-trash-alt" aria-hidden="true"></i></button></a>
+  % endfor
+
 ---
-table: cases.table
-rows: cases
-columns:
-  - Case Number: |
-      row_item.case_number
-  - Name: |
-      row_item.client.name
-  - Court: |
-      row_item.court
-  - Court Date: |
-      row_item.court_date
-  - Type: |
-      row_item.type
-  - Firm: |
-      row_item.firm
-  - Emails Sent: |
-      row_item.emailed
+event: switch_session
+code: |
+  log("Coming soon", "success")
+---
+code: |
+  interview_list(action="delete", filename=action_argument("filename"), session=action_argument("session"))  
+  log("Deleted and stopped emails for this case", "success")
+  interview_list_delete_session = True
 ---

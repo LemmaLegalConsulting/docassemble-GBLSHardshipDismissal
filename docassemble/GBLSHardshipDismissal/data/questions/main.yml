@@ -1,53 +1,134 @@
 ---
-include:
-  - shared.yml
----
-code: |
-  github_repo_name =  'docassemble-GBLSHardshipDismissal'
----
 metadata:
-  title: |
-    GBLS Hardship Dismissal
-  short title: |
-    Hardship Dismissal
-  tags:
-    - HO-02-00-00-00
+  title: SSI Hardship Scheduling System
+  short title: SSI Schedule
+  description: This is a SSI hardship scheduling system that automaically sends emails to track
   authors:
+    - Jim Graszer
     - Rami Lorca
-  temporary session: True
-  required privileges:
-    - admin
-    - developer
+---
+include:
+  - docassemble.LegalServerLink:LSLink.yml
+  - docassemble.AssemblyLine:assembly_line.yml
+  - docassemble.AssemblyLine:al_reminders.yml
+---
+objects:
+  - client: ALIndividual
+  - client.address: Address
+  - client_message: DAObject
 ---
 code: |
-  interview_short_title = "GBLS Hardship Dismissal"
----
-features:
-  labels above fields: True
+  if url_args.get('lang', None) == 'es':
+    user_language = 'es'
+  else:
+    user_language = 'en'
 ---
 code: |
-  AL_DEFAULT_STATE = "MA"
-  AL_DEFAULT_COUNTRY = "US"
+    temp_metadata = get_interview_metadata(
+      user_info().filename, user_info().session
+    )
+    temp_metadata["case_number"] = legalserver_case.case_number
+    temp_metadata["name"] = client.name.full()
+    temp_metadata["court"] = "Temp"
+    temp_metadata["court_date"] = "7/1/2025"
+    temp_metadata["type"] = "SSI"
+    temp_metadata["firm"] = "Debt Company"
+    temp_metadata["emailed"] = 1
+    set_current_session_metadata(temp_metadata)
+    del(temp_metadata)
+
+    save_metadata = True
 ---
-###################### Main Order Start ######################
+initial: True
+code: |
+  set_language(user_language)
+  
+  
+  # LegalServer variables
+  checked_for_stashed_data
+  set_legalserver_site
+
+  # If you need everything, you can call `parse_all_legalserver_data`
+  # This is a little faster since it doesn't get extra records:
+  raise_errors_getting_legalserver_data
+  parse_client_data
+  parse_legalserver_assignment_data
+  parse_legalserver_case_data
+  parse_legalserver_primary_assignment
+  parse_legalserver_pro_bono_assignments
+  parse_legalserver_current_user
+
+  # Sample defaults can be set. In this example, they are all commented out.
+  check_for_defaults
+---
+code: |
+  check_for_defaults = True
+---
+variable name: al_reminders
+use objects: True
+data:
+  filing_documents:
+    description: Filing these documents
+    date: ${ today().plus(days=3).format("yyyy-MM-dd") }
+    email template: generate_reminder_template
+code: |
+  al_reminders.initial_email_template = "scheduled_reminder_email_template"
+---
+template: scheduled_reminder_email_template
+subject: |
+  SSI Hardship inquiry
+content: |
+  This will be the initial template that we'll send out.
+---
+template: generate_reminder_template
+subject: |
+  SSI Hardship status
+content: |
+  The body of this email will remind them of the case we're reaching out to them.
 ---
 mandatory: True
+id: interview order
 code: |
-  load_active_sessions
+  client.name.first
+  # ... Ask other interview questions
+  al_user_wants_reminders
+  # al_reminders_sent_initial_test_message
 
-  if active_sessions:
-    load_existing_client_data
-
-  main_dashboard
+  save_metadata
+  waiting
 ---
-###################### Nav Start ######################
+id: your name
+sets:
+    - client.name.first
+    - client.name.last
+    - client.name.middle
+    - client.name.suffix
+question: |
+  What is your name?
+fields:
+  - code: |
+      client.name_fields()
+---
+question: |
+  What is your email address?
+subquestion: |
+  This will send a message at this address automatically.
+fields:
+  - no label: client.email
+---
+template: editted_letter
+subject: |
+  Testing
+content: |
+  Logging that an email was sent to ${ client.email }
 ---
 code: |
-  enable_al_nav_sections = True
+  email_sent_ok = send_email(to=[legalserver_case.email], template=editted_letter)
 ---
-reconsider: True
-variable name: al_nav_sections
-data from code:
-  - main_dashboard: |
-      "Main Dashboard"
+id: waiting screen
+question: |
+  Waiting screen
+subquestion: |
+  This session will stay active for the automated emails until it is deleted or the case date expires.
+continue button field: waiting
 ---
