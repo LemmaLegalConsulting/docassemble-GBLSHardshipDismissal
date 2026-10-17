@@ -51,7 +51,7 @@ setup(name='docassemble.GBLSHardshipDismissal',
       url='',
       packages=find_packages(),
       namespace_packages=['docassemble'],
-      install_requires=[],
+      install_requires=['docassemble.AssemblyLine', 'docassemble.LSDocassembleLink @ git+https://github.com/LemmaLegalConsulting/docassemble-LegalServerLink.git@main'],
       zip_safe=False,
       package_data=find_package_data(where='docassemble/GBLSHardshipDismissal/', package='docassemble.GBLSHardshipDismissal'),
      )
